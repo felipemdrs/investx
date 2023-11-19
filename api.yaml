@@ -1,0 +1,1505 @@
+openapi: 3.0.0
+info:
+  title: InvestX API
+  version: 1.0.0
+servers:
+  - url: https://api-dev.investx.com/v1
+  - url: https://api-hom.investx.com/v1
+  - url: https://api-prd.investx.com/v1
+paths:
+  /accounts:
+    post:
+      summary: Criar conta
+      description: >
+        Criar a conta de uma empresa que será utilizado como conta principal para criar operadores e gerir investimentos na InvestX
+        
+
+        #### SLA: 100ms
+      tags:
+        - Conta
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Account'
+                - type: object
+                  properties:
+                    legal_representatives:
+                      type: array
+                      items:
+                        type: object
+                        allOf:
+                          - $ref: '#/components/schemas/LegalRepresentative'
+                          - type: object
+                            properties:
+                              address:
+                                $ref: '#/components/schemas/Address'
+      responses:
+        '201':
+          description: Conta criada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  account_id: 
+                    type: string
+                    description: Identificação da empresa
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+    get:
+      summary: Obter detalhes da conta
+      description: >
+        Obtem detalhes da conta
+        
+
+        #### SLA: 100ms
+      tags:
+        - Conta
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: account_id
+          description: Id da conta
+          required: true
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detalhe da conta
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Account'
+                  - type: object
+                    properties:
+                      legal_representatives:
+                        type: array
+                        items:
+                          type: object
+                          allOf:
+                            - $ref: '#/components/schemas/LegalRepresentativeGet'
+                            - type: object
+                              properties:
+                                address:
+                                  $ref: '#/components/schemas/AddressGet'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+  /accounts/summary:
+    get:
+      summary: Obter informações resumidas da conta
+      description: >
+        Obtem informações resumidas da conta atual
+        
+
+        #### SLA: 100ms
+      tags:
+        - Conta
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: account_id
+          description: Id da conta
+          required: true
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detalhe da conta
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountGet'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+
+  /representatives:
+    get:
+      summary: Obter lista de representantes legais
+      description: >
+        Obtem uma lista  de todos representante legais da empresa
+        
+
+        #### SLA: 100ms
+      tags:
+        - Representante legal
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: account_id
+          description: Id da conta
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: isActive
+          in: query
+          description: Filtra somente ativos
+          schema:
+            type: boolean
+            default: null
+      responses:
+        '200':
+          description: Lista de represenantes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/LegalRepresentativeGet'
+                    - type: object
+                      properties:
+                        address:
+                          allOf:
+                            - type: object
+                              properties:
+                                id: 
+                                  type: string
+                                  description: Identificação do endereço
+                            - $ref: '#/components/schemas/Address'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+
+  /representatives/{representative_id}:
+    get:
+      summary: Obter representantes legal
+      description: >
+        Obtem detalhes de um representante legal da conta
+        
+
+        #### SLA: 100ms
+      tags:
+        - Representante legal
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: account_id
+          description: Id da conta
+          required: true
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detalhes do represenante legal
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/LegalRepresentativeGet'
+                    - type: object
+                      properties:
+                        address:
+                          allOf:
+                            - type: object
+                              properties:
+                                id: 
+                                  type: string
+                                  description: Identificação do endereço
+                            - $ref: '#/components/schemas/Address'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+    patch:
+      summary: Atualizar representante legal
+      description: >
+        Atualiza um representante legal da empresa
+        
+
+        #### SLA: 100ms
+      tags:
+        - Representante legal
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: representative_id
+          description: Id do representante legal
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/LegalRepresentative'
+                - type: object
+                  properties:
+                    address:
+                      $ref: '#/components/schemas/AddressGet'
+      responses:
+        '201':
+          description: Conta criada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  account_id: 
+                    type: string
+                    description: Identificação da empresa
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+
+  /operators:
+    post:
+      summary: Criar um novo operador
+      description: > 
+        Adicione vários operadores a uma conta, mas apenas um pode ser o titular da conta.
+        
+
+        #### SLA: 100ms
+      tags:
+        - Operador
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: account_id
+          in: path
+          description: Id da conta
+          required: true
+          schema:
+            type: number
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Operator'
+                - type: object
+                  properties:
+                    address:
+                      $ref: '#/components/schemas/Address'
+      responses:
+        '201':
+          description: Operador criado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operador_id: 
+                    type: string
+                    description: Identificação do operador
+                  address_id: 
+                    type: string
+                    description: Identificação do operador
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+    get:
+      summary: Obter lista de operadores
+      description: > 
+        Obtenha uma lista de operadores vinculados a uma conta.
+        
+
+        #### SLA: 100ms
+      tags:
+        - Operador
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: account_id
+          in: path
+          description: Id da conta
+          required: true
+          schema:
+            type: number
+            format: int64
+        - name: isActive
+          in: query
+          description: Filtra somente ativos
+          schema:
+            type: boolean
+            default: null
+      responses:
+        '200':
+          description: Lista de operadores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - type: object
+                      properties:
+                        id: 
+                          type: string
+                          description: Identificação do operador
+                    - $ref: '#/components/schemas/Operator'
+                    - type: object
+                      properties:
+                        address:
+                          allOf:
+                            - type: object
+                              properties:
+                                id: 
+                                  type: string
+                                  description: Identificação do endereço
+                            - $ref: '#/components/schemas/Address'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+  /operators/{operador_id}:
+    get:
+      summary: Obter operador
+      description: > 
+        Obtenha detalhes de um operador vinculado a uma conta.
+        
+
+        #### SLA: 100ms
+      tags:
+        - Operador
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: account_id
+          in: path
+          description: Id da conta
+          required: true
+          schema:
+            type: number
+            format: int64
+      responses:
+        '200':
+          description: Lista de operadores
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id: 
+                        type: string
+                        description: Identificação do operador
+                  - $ref: '#/components/schemas/Operator'
+                  - type: object
+                    properties:
+                      address:
+                        allOf:
+                          - type: object
+                            properties:
+                              id: 
+                                type: string
+                                description: Identificação do endereço
+                          - $ref: '#/components/schemas/Address'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+    patch:
+      summary: Atualizar informações do operador
+      description: >
+        Atualize as informações do operador. Este endpoint permite marcar o cliente na conta como ativo ou inativo.
+        
+
+        #### SLA: 100ms
+      tags:
+        - Operador
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: operador_id
+          in: path
+          description: Id do operador a ser atualizado
+          required: true
+          schema:
+            type: number
+        - name: account_id
+          in: path
+          description: Id da conta
+          required: true
+          schema:
+            type: number
+            format: int64
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Nome do operador
+                birth_date:
+                  type: string
+                  description: Data de nascimento do operador
+                  format: date 
+                mothers_name:
+                  type: string
+                  description: Nome da mãe do operador
+                is_active:
+                  type: boolean
+                  description: Flag indicando se este operador está ativo
+                  default: true
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+
+  /operators/{operator_id}/addresses:
+    get:
+      summary: Listar endereços
+      description: >
+        Lista os endereços definidos para a conta especificada.
+        
+
+        #### SLA: 100ms
+      tags:
+        - Endereço
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: operator_id
+          in: path
+          description: Id do operador a ser atualizado
+          required: true
+          schema:
+            type: number
+            format: int64
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: isActive
+          in: query
+          description: Filtra somente ativos
+          schema:
+            type: boolean
+            default: null
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: number
+                        description: Id do endereço
+                        format: int64
+                  -  $ref: '#/components/schemas/Address'
+                
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+  
+  /operators/{operator_id}/addresses/{address_id}:
+    get:
+      summary: Obter endereço
+      description: >
+        Obtenha informações de um endereço.
+        
+
+        #### SLA: 100ms
+      tags:
+        - Endereço
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: operator_id
+          in: path
+          description: Id do operador a ser buscado
+          required: true
+          schema:
+            type: number
+            format: int64
+        - name: address_id
+          in: path
+          description: Id do endereço a ser buscado
+          required: true
+          schema:
+            type: number
+            format: int64
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                 $ref: '#/components/schemas/Address'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+    patch:
+      summary: Atualizar endereço
+      description: >
+        Atualize as informações do operador. Este endpoint permite marcar o operador na conta como ativo ou inativo com o campo. Este campo é apenas informativo.
+        
+
+        #### SLA: 100ms
+      tags:
+        - Endereço
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: operator_id
+          in: path
+          description: Id do operador a ser atualizado
+          required: true
+          schema:
+            type: number
+            format: int64
+        - name: address_id
+          in: path
+          description: Id do endereço a ser atualizado
+          required: true
+          schema:
+            type: number
+            format: int64
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Address'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+  /orders/create:
+    post:
+      summary: Criar uma ordem
+      description: Abre uma ordem limitada de compra e a envia para livro de ofertas para sua execução.
+      tags:
+        - Ordem
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                symbol:
+                  type: string
+                  description: Símbolo da negociação
+                  examaple: ITSA4
+                active_type:
+                  type: string
+                  description: Local de negociação da ordem
+                  enum: [CRIPTO, B3, ETF]
+                type:
+                  type: string
+                  description: Tipo da ordem
+                  enum: [LIMIT_BUY, LIMIT_SELL, MARKET_BUY, MARKET_SELL]
+                side:
+                  type: string
+                  description: Define o tipo de operação, se será compra ou venda
+                  enum: [BUY, SELL]
+                price:
+                  type: number
+                  description: Preço da compra
+                  example: 10.04
+                amount:
+                  type: integer
+                  description: Quantidade de ativos a serem negociados
+                  example: 29
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: 
+                    type: string
+                    description: ID da ordem
+                  symbol:
+                    type: string
+                    description: Símbolo da negociação
+                  type:
+                    type: string
+                    description: Tipo da ordem
+                  active_type:
+                    type: string
+                    description: Local de negociação da ordem
+                  price:
+                    type: string
+                    description: Preço unitário da ordem
+                  average_price:
+                    type: string
+                    description: Preço médio da ordem
+                  amount:
+                    type: string
+                    description: Quantidade de ativo
+                  filled_amount:
+                    type: string
+                    description: Quantidade de ativo executado
+                  filled_fee:
+                    type: string
+                    description: Taxa paga
+                  status:
+                    type: string
+                    description: Status da ordem
+                    enum: [SUBMITTED, PROCESSING, PARTIAL_FILLED, PARTIAL_CANCELED, PARTIAL_REJECTED, FILLED, CANCELED, REJECTED, CANCELING]
+                  timestamp:
+                    type: string
+                    description: Hora da criação da ordem
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+  /orders/{order_id}/cancel:
+    post:
+      summary: Cancelar uma ordem
+      description: Solicita o cancelamento de uma ordem.
+      tags:
+        - Ordem
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: order_id
+          description: Id da ordem
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result: 
+                    type: boolean
+                    description: Resultado do cancelamento
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+  /orders:
+    get:
+      summary: Listar order
+      description: >
+        Retorna o histório de ordens de acordo com o filtro informado
+      tags:
+        - Ordem
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Você pode encontrar as opções dos status de ordem na introdução. Use vírgula para separar vários status. Poderá ser utlizado também os status "FINISHED" para listagem das finalizadas ou "UNFINISHED" para ordens abertas.
+          schema:
+            type: string
+            enum: [SUBMITTED, PROCESSING, PARTIAL_FILLED, PARTIAL_CANCELED, PARTIAL_REJECTED, FILLED, CANCELED, REJECTED, CANCELING]
+        - name: from
+          in: query
+          description: Data de início, considerando a hora da criação da ordem em milissegundos
+          schema:
+            type: number
+        - name: to
+          in: query
+          description: Data de término, considerando a hora da criação da ordem em milissegundos
+          schema:
+            type: number
+        - name: limit
+          in: query
+          description: O número de ordens a retornar, default 100, máx 100
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result: 
+                    type: boolean
+                    description: Resultado do cancelamento
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+
+components:
+  schemas:
+    Account:
+      type: object
+      properties:
+        company_name:
+          type: string
+          description: Nome da empresa
+        registration_number:
+          type: string
+          description: Número de registro da empresa
+        activity:
+          type: string
+          description: Categoria de atividade da empresa
+        company_type:
+          type: string
+          description: Tipe de empresa
+        company_format:
+          type: string
+          description: Formato da empresa
+          example: LTDA
+        income:
+          type: string
+          description: Renda da empresa
+        net_worth:
+          type: string
+          description: Patrimônio liquido
+        fiscal_situation:
+          type: string
+          description: Situalção fiscal da empresa
+        email:
+          type: string
+          description: Email da empresa
+        company_constitution_date:
+          type: string
+          format: date
+          description: Data de constituição da empresa
+    AccountGet:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Id da conta
+        company_name:
+          type: string
+          description: Nome da empresa
+        registration_number:
+          type: string
+          description: Número de registro da empresa
+        activity:
+          type: string
+          description: Categoria de atividade da empresa
+        company_type:
+          type: string
+          description: Tipe de empresa
+        company_format:
+          type: string
+          description: Formato da empresa
+          example: LTDA
+        income:
+          type: string
+          description: Renda da empresa
+        net_worth:
+          type: string
+          description: Patrimônio liquido
+        fiscal_situation:
+          type: string
+          description: Situalção fiscal da empresa
+        email:
+          type: string
+          description: Email da empresa
+        company_constitution_date:
+          type: string
+          format: date
+          description: Data de constituição da empresa
+    LegalRepresentativeGet:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              description: Id do representante legal
+        - $ref: '#/components/schemas/LegalRepresentative'
+    LegalRepresentative:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Nome do representante
+        document_number:
+          type: string
+          description: Número do documento do representante
+        phone:
+          type: string
+          description: Telefone de contato do representante
+        email:
+          type: string
+          description: Email do representante
+        birth_date:
+          type: string
+          description: Data de nascimento do representante
+          format: date
+        occupation:
+          type: string
+          description: Ocupação principal do representante
+        mothers_name:
+          type: string
+          description: Nome da mãe do representante
+        marital_status:
+          type: string
+          enum: [SINGLE, MARRIED, DIVORCED, WIDOWER]
+          description: Estado civil do representante
+        is_pep:
+          type: boolean
+          description: É politicamente exposto
+          default: false
+        is_active:
+          type: boolean
+          description: Flag indicando se este representante está ativo. O valor padrão é true
+          default: true
+    Operator:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Nome do operador
+        document_number:
+          type: string
+          description: Número do documento do operador
+        birth_date:
+          type: string
+          description: Data de nascimento do operador
+          format: date 
+        mothers_name:
+          type: string
+          description: Nome da mãe do operador
+        is_pep:
+          type: boolean
+          description: É politicamente exposto
+          default: false
+        is_active:
+          type: boolean
+          description: Flag indicando se este operador está ativo. O valor padrão é true
+          default: true
+    AddressGet:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              description: Id do endereço
+        - $ref: '#/components/schemas/Address'
+    Address:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [RESIDENCIAL, COMERCIAL, OTHER]
+          description: Tipo de endereço
+        address:
+          type: string
+          description: Endereço (rua, avenida, etc) nome
+        number:
+          type: string
+          description: Número do endereço
+        complementary_addres:
+          type: string
+          description: Qualquer informação complementar
+        neighborhood:
+          type: string
+          description: Bairro do endereço
+        zip_code:
+          type: string
+          description: CEP do endereço
+        city:
+          type: string
+          description: Cidade do endereço
+        statue:
+          type: string
+          description: Estado do endereço
+        country:
+          type: string
+          description: País do endereço
+        is_active:
+          type: boolean
+          description: Flag indicando se este endereço está ativo. O valor padrão é true
+          default: true
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+    AppId:
+      type: apiKey
+      in: header
+      name: x-app-id
