@@ -181,7 +181,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccountGet'
+                $ref: '#/components/schemas/AccountResponse'
         '403':
           description: Forbidden
           content:
@@ -1019,7 +1019,7 @@ paths:
                 properties:
                   message: 
                     type: string
-  /orders/create:
+  /orders:
     post:
       summary: Criar uma ordem
       description: Abre uma ordem limitada de compra e a envia para livro de ofertas para sua execução.
@@ -1072,42 +1072,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id: 
-                    type: string
-                    description: ID da ordem
-                  symbol:
-                    type: string
-                    description: Símbolo da negociação
-                  type:
-                    type: string
-                    description: Tipo da ordem
-                  active_type:
-                    type: string
-                    description: Local de negociação da ordem
-                  price:
-                    type: string
-                    description: Preço unitário da ordem
-                  average_price:
-                    type: string
-                    description: Preço médio da ordem
-                  amount:
-                    type: string
-                    description: Quantidade de ativo
-                  filled_amount:
-                    type: string
-                    description: Quantidade de ativo executado
-                  filled_fee:
-                    type: string
-                    description: Taxa paga
-                  status:
-                    type: string
-                    description: Status da ordem
-                    enum: [SUBMITTED, PROCESSING, PARTIAL_FILLED, PARTIAL_CANCELED, PARTIAL_REJECTED, FILLED, CANCELED, REJECTED, CANCELING]
-                  timestamp:
-                    type: string
-                    description: Hora da criação da ordem
+                $ref: '#/components/schemas/OrderResponse'
         '400':
           description: Bad Request
           content:
@@ -1146,8 +1111,113 @@ paths:
                 properties:
                   message: 
                     type: string
-  /orders/{order_id}/cancel:
-    post:
+    get:
+      summary: Listar ordens
+      description: >
+        Retorna o histório de ordens de acordo com o filtro informado
+      tags:
+        - Ordem
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Use vírgula para separar vários status. Poderá ser utlizado também os status "FINISHED" para listagem das finalizadas ou "UNFINISHED" para ordens abertas.
+          schema:
+            type: string
+            enum: [SUBMITTED, PROCESSING, PARTIAL_FILLED, PARTIAL_CANCELED, PARTIAL_REJECTED, FILLED, CANCELED, REJECTED, CANCELING]
+        - name: from
+          in: query
+          description: Data de início, considerando a hora da criação da ordem em milissegundos
+          schema:
+            type: number
+        - name: to
+          in: query
+          description: Data de término, considerando a hora da criação da ordem em milissegundos
+          schema:
+            type: number
+        - name: limit
+          in: query
+          description: O número de ordens a retornar, default 100, máx 100
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+  /orders/{order_id}:
+    get:
+      summary: Obter detalhe de uma ordem
+      description: >
+        Obtenha detalhes de uma ordem, assim como seu status de execução
+      tags:
+        - Ordem
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: order_id
+          description: Id da ordem
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result: 
+                    $ref: '#/components/schemas/OrderResponse'
+    delete:
       summary: Cancelar uma ordem
       description: Solicita o cancelamento de uma ordem.
       tags:
@@ -1217,13 +1287,86 @@ paths:
                 properties:
                   message: 
                     type: string
-  /orders:
-    get:
-      summary: Listar order
+  /coins/withdraws:
+    post:
+      summary: Sacar criptomoeda
       description: >
-        Retorna o histório de ordens de acordo com o filtro informado
+        Realize operação de saque para alguma criptomoeda. A operação será realizada na carteira destino
       tags:
-        - Ordem
+        - Criptomoeda
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                symbol:
+                  type: string
+                  description: Símbolo da negociação
+                  examaple: BTC
+                amount:
+                  type: integer
+                  description: Valor do saque
+                  example: 29
+                wallet:
+                  type: string
+                  description: Endereço da carteira de destino
+                chain_alias:
+                  type: string
+                  description: Apelido de cadeia do endereço da carteira de destino
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Id do saque
+                  status:
+                    type: string
+                    description: Status do saque
+                    enum: [PENDING, ERROR, IN_PROGRESS, SUCCESS]
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+    get:
+      summary: Listar saques
+      description: >
+        Retorna o histório de saques de acordo com o filtro informado
+      tags:
+        - Criptomoeda
       security:
         - ApiKeyAuth: []
         - AppId: []
@@ -1236,23 +1379,23 @@ paths:
             type: string
         - name: status
           in: query
-          description: Você pode encontrar as opções dos status de ordem na introdução. Use vírgula para separar vários status. Poderá ser utlizado também os status "FINISHED" para listagem das finalizadas ou "UNFINISHED" para ordens abertas.
+          description: Use vírgula para separar vários status. Poderá ser utlizado também os status "FINISHED" para listagem das finalizadas ou "UNFINISHED" para saques abertos.
           schema:
             type: string
-            enum: [SUBMITTED, PROCESSING, PARTIAL_FILLED, PARTIAL_CANCELED, PARTIAL_REJECTED, FILLED, CANCELED, REJECTED, CANCELING]
+            enum: [PENDING, ERROR, IN_PROGRESS, SUCCESS]
         - name: from
           in: query
-          description: Data de início, considerando a hora da criação da ordem em milissegundos
+          description: Data de início, considerando a hora da criação do saque em milissegundos
           schema:
             type: number
         - name: to
           in: query
-          description: Data de término, considerando a hora da criação da ordem em milissegundos
+          description: Data de término, considerando a hora da criação do saque em milissegundos
           schema:
             type: number
         - name: limit
           in: query
-          description: O número de ordens a retornar, default 100, máx 100
+          description: O número de itens a retornar, default 100, máx 100
           schema:
             type: number
       responses:
@@ -1261,11 +1404,15 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  result: 
-                    type: boolean
-                    description: Resultado do cancelamento
+                type: array
+                items:
+                  id:
+                    type: string
+                    description: Id do saque
+                  status:
+                    type: string
+                    description: Status do saque
+                    enum: [PENDING, ERROR, IN_PROGRESS, SUCCESS]
         '403':
           description: Forbidden
           content:
@@ -1274,17 +1421,6 @@ paths:
                 type: object
                 properties:
                   message: 
-                    type: string
-        '404':
-          description: Not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message: 
-                    type: string
-                  field: 
                     type: string
         '409':
           description: Conflict
@@ -1304,6 +1440,82 @@ paths:
                 properties:
                   message: 
                     type: string
+  /coins/withdraws/{withdraw_id}:
+    post:
+      summary: Detalhe do saque
+      description: >
+        Obtenha o status do saque realizado
+      tags:
+        - Criptomoeda
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: withdraw_id
+          description: Id do saque
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Id do saque
+                  status:
+                    type: string
+                    description: Status do saque
+                    enum: [PENDING, ERROR, IN_PROGRESS, SUCCESS]
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+  /coins/wallets:
+    get:
+      summary: Obtem dados da carteira
+      description: >
+        Obtenha detalhes de uma ordem, assim como seu status de execução
+      tags:
+        - Criptomoeda
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
 
 components:
   schemas:
@@ -1342,7 +1554,7 @@ components:
           type: string
           format: date
           description: Data de constituição da empresa
-    AccountGet:
+    AccountResponse:
       type: object
       properties:
         id:
@@ -1494,6 +1706,43 @@ components:
           type: boolean
           description: Flag indicando se este endereço está ativo. O valor padrão é true
           default: true
+    OrderResponse:
+      type: object
+      properties:
+        id: 
+          type: string
+          description: ID da ordem
+        symbol:
+          type: string
+          description: Símbolo da negociação
+        type:
+          type: string
+          description: Tipo da ordem
+        active_type:
+          type: string
+          description: Local de negociação da ordem
+        price:
+          type: string
+          description: Preço unitário da ordem
+        average_price:
+          type: string
+          description: Preço médio da ordem
+        amount:
+          type: string
+          description: Quantidade de ativo
+        filled_amount:
+          type: string
+          description: Quantidade de ativo executado
+        filled_fee:
+          type: string
+          description: Taxa paga
+        status:
+          type: string
+          description: Status da ordem
+          enum: [SUBMITTED, PROCESSING, PARTIAL_FILLED, PARTIAL_CANCELED, PARTIAL_REJECTED, FILLED, CANCELED, REJECTED, CANCELING]
+        timestamp:
+          type: string
+          description: Hora da criação da ordem
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
