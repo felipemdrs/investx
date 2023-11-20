@@ -218,7 +218,7 @@ paths:
           in: header
           schema:
             type: string
-        - name: isActive
+        - name: is_active
           in: query
           description: Filtra somente ativos
           schema:
@@ -533,7 +533,7 @@ paths:
           schema:
             type: number
             format: int64
-        - name: isActive
+        - name: is_active
           in: query
           description: Filtra somente ativos
           schema:
@@ -794,7 +794,7 @@ paths:
           in: header
           schema:
             type: string
-        - name: isActive
+        - name: is_active
           in: query
           description: Filtra somente ativos
           schema:
@@ -968,8 +968,8 @@ paths:
             schema:
               $ref: '#/components/schemas/Address'
       responses:
-        '200':
-          description: OK
+        '204':
+          description: No Content
         '400':
           description: Bad Request
           content:
@@ -1000,6 +1000,304 @@ paths:
                   message: 
                     type: string
                   field: 
+                    type: string
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+
+  /products:
+    post:
+      summary: Criar um novo produto
+      description: >
+        Crie um novo produto para ETF, FIIs, Ações e Criptomoedas
+
+        ### API Interna
+
+
+        ### SLA: 100ms
+      tags:
+        - Produtos (interno)
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                id:
+                  type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+    get:
+      summary: Retorna uma lista de produtos
+      description: >
+        Crie um novo produto para ETF, FIIs, Ações e Criptomoedas
+
+        ### API Interna
+
+
+        ### SLA: 100ms
+      tags:
+        - Produtos (interno)
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: is_active
+          in: query
+          description: Filtra somente ativos
+          schema:
+            type: boolean
+            default: null
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+  /products/{product_id}:
+    get:
+      summary: Obter detalhes do produto
+      description: >
+        Obtem detalhes de um produto
+
+        ### API Interna
+
+
+        ### SLA: 250ms
+      tags:
+        - Produtos (interno)
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: is_active
+          in: query
+          description: Filtra somente ativos
+          schema:
+            type: boolean
+            default: null
+        - name: product_id
+          in: query
+          description: Id do produto
+          schema:
+            type: string
+            default: null
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/ProductResponse'
+                    - type: object
+                      properties:
+                        price:
+                          type: number
+                          description: Preço atual do produto
+                        amount_available:
+                          type: integer
+                          description: Quantidade disponível para venda
+                        market_value:
+                          type: number
+                          description: Valor total de mercado
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+    patch:
+      summary: Atualizar produto
+      description: >
+        Atualiza informações de um produto
+
+        ### API Interna
+
+
+        ### SLA: 250ms
+      tags:
+        - Produtos (interno)
+      security:
+        - ApiKeyAuth: []
+        - AppId: []
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: product_id
+          in: query
+          description: Id do produto
+          schema:
+            type: string
+            default: null
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
                     type: string
         '409':
           description: Conflict
@@ -1778,6 +2076,67 @@ components:
         timestamp:
           type: string
           description: Hora da criação da ordem
+    Product:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: Símbolo da negociação
+          examaple: ITSA4
+        description:
+          type: string
+          description: Descrição do produto cadastrado
+        company_document:
+          type: string
+          description: Documento da empresa em caso de B3 ou ETF
+        active_type:
+          type: string
+          description: Local de negociação da ordem
+          enum: [CRIPTO, B3, ETF]
+        amount:
+          type: integer
+          description: Quantidade de ativos a serem negociados
+          example: 29
+        launch_date:
+          type: string
+          description: Data de abertura ao mercado
+          format: date
+        is_active:
+          type: boolean
+          description: Flag indicando se este representante está ativo. O valor padrão é true
+          default: true
+    ProductResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Id do produto
+        symbol:
+          type: string
+          description: Símbolo da negociação
+          examaple: ITSA4
+        description:
+          type: string
+          description: Descrição do produto cadastrado
+        company_document:
+          type: string
+          description: Documento da empresa em caso de B3 ou ETF
+        active_type:
+          type: string
+          description: Local de negociação da ordem
+          enum: [CRIPTO, B3, ETF]
+        amount:
+          type: integer
+          description: Quantidade de ativos a serem negociados
+          example: 29
+        launch_date:
+          type: string
+          description: Data de abertura ao mercado
+          format: date
+        is_active:
+          type: boolean
+          description: Flag indicando se este representante está ativo. O valor padrão é true
+          default: true
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
