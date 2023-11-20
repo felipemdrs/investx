@@ -1346,7 +1346,7 @@ paths:
                 symbol:
                   type: string
                   description: Símbolo da negociação
-                  examaple: ITSA4
+                  example: ITSA4
                 active_type:
                   type: string
                   description: Local de negociação da ordem
@@ -1608,7 +1608,7 @@ paths:
                 symbol:
                   type: string
                   description: Símbolo da negociação
-                  examaple: BTC
+                  example: BTC
                 amount:
                   type: integer
                   description: Valor do saque
@@ -1656,6 +1656,7 @@ paths:
                 type: object
                 properties:
                   message: 
+                    type: string
         '500':
           description: Internal server error
           content:
@@ -1800,6 +1801,7 @@ paths:
                 type: object
                 properties:
                   message: 
+                    type: string
         '500':
           description: Internal server error
           content:
@@ -1845,6 +1847,7 @@ paths:
                 type: object
                 properties:
                   message: 
+                    type: string
         '500':
           description: Internal server error
           content:
@@ -2087,7 +2090,7 @@ components:
         symbol:
           type: string
           description: Símbolo da negociação
-          examaple: ITSA4
+          example: ITSA4
         description:
           type: string
           description: Descrição do produto cadastrado
@@ -2119,7 +2122,7 @@ components:
         symbol:
           type: string
           description: Símbolo da negociação
-          examaple: ITSA4
+          example: ITSA4
         description:
           type: string
           description: Descrição do produto cadastrado
