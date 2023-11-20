@@ -941,7 +941,7 @@ paths:
         - ApiKeyAuth: []
         - AppId: []
       parameters:
-        - name: created_by
+        - name: operator_id
           in: path
           description: Id do operador a ser atualizado
           required: true
