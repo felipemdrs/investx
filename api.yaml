@@ -941,7 +941,7 @@ paths:
         - ApiKeyAuth: []
         - AppId: []
       parameters:
-        - name: operator_id
+        - name: created_by
           in: path
           description: Id do operador a ser atualizado
           required: true
@@ -1514,10 +1514,16 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  result: 
-                    $ref: '#/components/schemas/OrderResponse'
+                allOf:
+                  - $ref: '#/components/schemas/OrderResponse'
+                  - type: object
+                    properties:
+                      cancelled_by:
+                        type: string
+                        description: Id do operador que realizou o cancelamento
+                      cancelled_timestamp:
+                        type: string
+                        description: Hora do cancelamento da ordem
     delete:
       summary: Cancelar uma ordem
       description: Solicita o cancelamento de uma ordem.
@@ -1630,6 +1636,9 @@ paths:
                   id:
                     type: string
                     description: Id do saque
+                  created_by:
+                    type: string
+                    description: Id do operador que realizou o saque
                   status:
                     type: string
                     description: Status do saque
@@ -1703,6 +1712,11 @@ paths:
           description: O número de itens a retornar, default 100, máx 100
           schema:
             type: number
+        - name: operator_id
+          in: query
+          description: Id do operador
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -1716,11 +1730,14 @@ paths:
                     id:
                       type: string
                       description: Id do saque
+                    created_by:
+                      type: string
+                      description: Id do operador que realizou o saque
                     status:
                       type: string
                       description: Status do saque
                       enum: [PENDING, ERROR, IN_PROGRESS, SUCCESS]
-                    withdra_timestamp:
+                    withdraw_timestamp:
                       type: string
                       description: Hora da efetivação do saque
                     timestamp:
@@ -2053,6 +2070,9 @@ components:
         id: 
           type: string
           description: ID da ordem
+        created_by:
+          type: string
+          description: Id do operador que criou a ordem
         symbol:
           type: string
           description: Símbolo da negociação
