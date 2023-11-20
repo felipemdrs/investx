@@ -1510,12 +1510,47 @@ paths:
     get:
       summary: Obtem dados da carteira
       description: >
-        Obtenha detalhes de uma ordem, assim como seu status de execução
+        Obter endereço da carteira de criptomoedas para operações de depósito
       tags:
         - Criptomoeda
       security:
         - ApiKeyAuth: []
         - AppId: []
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: string
+                    description: Endereço da carteira de criptomoedas
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
 
 components:
   schemas:
