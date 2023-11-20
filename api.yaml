@@ -1054,8 +1054,11 @@ paths:
           content:
             application/json:
               schema:
-                id:
-                  type: string
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Id do produto
         '400':
           description: Bad Request
           content:
@@ -1631,6 +1634,9 @@ paths:
                     type: string
                     description: Status do saque
                     enum: [PENDING, ERROR, IN_PROGRESS, SUCCESS]
+                  timestamp:
+                    type: string
+                    description: Hora da solitação do saque
         '400':
           description: Bad Request
           content:
@@ -1704,24 +1710,23 @@ paths:
               schema:
                 type: array
                 items:
-                  id:
-                    type: string
-                    description: Id do saque
-                  status:
-                    type: string
-                    description: Status do saque
-                    enum: [PENDING, ERROR, IN_PROGRESS, SUCCESS]
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: Id do saque
+                    status:
+                      type: string
+                      description: Status do saque
+                      enum: [PENDING, ERROR, IN_PROGRESS, SUCCESS]
+                    withdra_timestamp:
+                      type: string
+                      description: Hora da efetivação do saque
+                    timestamp:
+                      type: string
+                      description: Hora da solitação do saque
         '403':
           description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message: 
-                    type: string
-        '409':
-          description: Conflict
           content:
             application/json:
               schema:
