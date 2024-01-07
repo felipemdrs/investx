@@ -876,13 +876,6 @@ paths:
         - ApiKeyAuth: []
         - AppId: []
       parameters:
-        - name: operator_id
-          in: path
-          description: Id do operador a ser buscado
-          required: true
-          schema:
-            type: number
-            format: int64
         - name: address_id
           in: path
           description: Id do endereço a ser buscado
@@ -945,13 +938,6 @@ paths:
         - ApiKeyAuth: []
         - AppId: []
       parameters:
-        - name: operator_id
-          in: path
-          description: Id do operador a ser atualizado
-          required: true
-          schema:
-            type: number
-            format: int64
         - name: address_id
           in: path
           description: Id do endereço a ser atualizado
