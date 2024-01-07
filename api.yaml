@@ -6,6 +6,10 @@ servers:
   - url: https://api-dev.investx.com/v1
   - url: https://api-hom.investx.com/v1
   - url: https://api-prd.investx.com/v1
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []
+  - AppId: []
 paths:
   /accounts:
     post:
@@ -17,9 +21,6 @@ paths:
         #### SLA: 100ms
       tags:
         - Conta
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
       parameters:
         - name: x-correlation-id
           description: Correlation Id to keep track of workflow
@@ -104,9 +105,6 @@ paths:
         #### SLA: 100ms
       tags:
         - Conta
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
       parameters:
         - name: x-correlation-id
           description: Correlation Id to keep track of workflow
@@ -149,6 +147,76 @@ paths:
                 properties:
                   message: 
                     type: string
+    put:
+      summary: Atualizar conta
+      description: >
+        Atualiza informações de uma conta
+        
+
+        #### SLA: 100ms
+      tags:
+        - Conta
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: x-account-id
+          description: Id da conta
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Account'
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
   /accounts/summary:
     get:
       summary: Obter informações resumidas da conta
@@ -159,9 +227,6 @@ paths:
         #### SLA: 100ms
       tags:
         - Conta
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
       parameters:
         - name: x-correlation-id
           description: Correlation Id to keep track of workflow
@@ -202,9 +267,6 @@ paths:
         #### SLA: 100ms
       tags:
         - Representante legal
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
       parameters:
         - name: x-correlation-id
           description: Correlation Id to keep track of workflow
@@ -275,9 +337,6 @@ paths:
         #### SLA: 100ms
       tags:
         - Representante legal
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
       parameters:
         - name: representative_id
           description: Id do representante legal
@@ -346,9 +405,6 @@ paths:
         #### SLA: 100ms
       tags:
         - Representante legal
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
       parameters:
         - name: representative_id
           description: Id do representante legal
@@ -439,9 +495,6 @@ paths:
         #### SLA: 100ms
       tags:
         - Operador
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
       parameters:
         - name: x-correlation-id
           description: Correlation Id to keep track of workflow
@@ -527,9 +580,6 @@ paths:
         #### SLA: 100ms
       tags:
         - Operador
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
       parameters:
         - name: x-correlation-id
           description: Correlation Id to keep track of workflow
@@ -614,9 +664,6 @@ paths:
         #### SLA: 100ms
       tags:
         - Operador
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
       parameters:
         - name: x-correlation-id
           description: Correlation Id to keep track of workflow
@@ -692,9 +739,6 @@ paths:
         #### SLA: 100ms
       tags:
         - Operador
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
       parameters:
         - name: operador_id
           in: path
@@ -781,9 +825,6 @@ paths:
         #### SLA: 100ms
       tags:
         - Endereço
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
       parameters:
         - name: operator_id
           in: path
@@ -872,9 +913,6 @@ paths:
         #### SLA: 100ms
       tags:
         - Endereço
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
       parameters:
         - name: address_id
           in: path
@@ -934,9 +972,6 @@ paths:
         #### SLA: 100ms
       tags:
         - Endereço
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
       parameters:
         - name: address_id
           in: path
@@ -1016,15 +1051,10 @@ paths:
       description: >
         Crie um novo produto para ETF, FIIs, Ações e Criptomoedas
 
-        ### API Interna
-
 
         ### SLA: 100ms
       tags:
-        - Produto (interno)
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
+        - Produto
       parameters:
         - name: x-correlation-id
           description: Correlation Id to keep track of workflow
@@ -1092,15 +1122,10 @@ paths:
       description: >
         Crie um novo produto para ETF, FIIs, Ações e Criptomoedas
 
-        ### API Interna
-
 
         ### SLA: 100ms
       tags:
-        - Produto (interno)
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
+        - Produto
       parameters:
         - name: x-correlation-id
           description: Correlation Id to keep track of workflow
@@ -1158,15 +1183,10 @@ paths:
       description: >
         Obtem detalhes de um produto
 
-        ### API Interna
-
 
         ### SLA: 250ms
       tags:
-        - Produto (interno)
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
+        - Produto
       parameters:
         - name: x-correlation-id
           description: Correlation Id to keep track of workflow
@@ -1236,20 +1256,81 @@ paths:
                 properties:
                   message: 
                     type: string
+    put:
+      summary: Atualizar produto
+      description: >
+        Atualiza detalhes de um produto
+
+
+        ### SLA: 100ms
+      tags:
+        - Produto
+      parameters:
+        - name: x-correlation-id
+          description: Correlation Id to keep track of workflow
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: product_id
+          in: path
+          description: Id do produto
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/ProductResponse'
+                    - type: object
+                      properties:
+                        amount_available:
+                          type: integer
+                          description: Quantidade disponível para venda
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                  field: 
+                    type: string
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
     patch:
       summary: Atualizar produto
       description: >
         Atualiza informações de um produto
 
-        ### API Interna
-
 
         ### SLA: 250ms
       tags:
-        - Produto (interno)
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
+        - Produto
       parameters:
         - name: x-correlation-id
           description: Correlation Id to keep track of workflow
@@ -1317,9 +1398,6 @@ paths:
       description: Abre uma ordem limitada de compra e a envia para livro de ofertas para sua execução.
       tags:
         - Ordem
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
       parameters:
         - name: x-correlation-id
           description: Correlation Id to keep track of workflow
@@ -1409,9 +1487,6 @@ paths:
         Retorna o histório de ordens de acordo com o filtro informado
       tags:
         - Ordem
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
       parameters:
         - name: x-correlation-id
           description: Correlation Id to keep track of workflow
@@ -1483,9 +1558,6 @@ paths:
         Obtenha detalhes de uma ordem, assim como seu status de execução
       tags:
         - Ordem
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
       parameters:
         - name: x-correlation-id
           description: Correlation Id to keep track of workflow
@@ -1520,9 +1592,6 @@ paths:
       description: Solicita o cancelamento de uma ordem.
       tags:
         - Ordem
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
       parameters:
         - name: x-correlation-id
           description: Correlation Id to keep track of workflow
@@ -1592,9 +1661,6 @@ paths:
         Realize operação de saque para alguma criptomoeda. A operação será realizada na carteira destino
       tags:
         - Criptomoeda
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
       requestBody:
         required: true
         content:
@@ -1672,9 +1738,6 @@ paths:
         Retorna o histório de saques de acordo com o filtro informado
       tags:
         - Criptomoeda
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
       parameters:
         - name: x-correlation-id
           description: Correlation Id to keep track of workflow
@@ -1759,9 +1822,6 @@ paths:
         Obtenha o status do saque realizado
       tags:
         - Criptomoeda
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
       parameters:
         - name: x-correlation-id
           description: Correlation Id to keep track of workflow
@@ -1826,9 +1886,6 @@ paths:
         Obter endereço da carteira de criptomoedas para operações de depósito
       tags:
         - Criptomoeda
-      security:
-        - ApiKeyAuth: []
-        - AppId: []
       parameters:
         - name: x-correlation-id
           description: Correlation Id to keep track of workflow
@@ -2157,6 +2214,10 @@ components:
           description: Flag indicando se este representante está ativo. O valor padrão é true
           default: true
   securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT   
     ApiKeyAuth:
       type: apiKey
       in: header
