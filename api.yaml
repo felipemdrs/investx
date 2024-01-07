@@ -271,7 +271,7 @@ paths:
       description: >
         Obtem detalhes de um representante legal da conta
         
-
+        
         #### SLA: 100ms
       tags:
         - Representante legal
@@ -279,6 +279,12 @@ paths:
         - ApiKeyAuth: []
         - AppId: []
       parameters:
+        - name: representative_id
+          description: Id do representante legal
+          required: true
+          in: path
+          schema:
+            type: string
         - name: x-correlation-id
           description: Correlation Id to keep track of workflow
           required: true
@@ -344,6 +350,12 @@ paths:
         - ApiKeyAuth: []
         - AppId: []
       parameters:
+        - name: representative_id
+          description: Id do representante legal
+          required: true
+          in: path
+          schema:
+            type: string
         - name: x-correlation-id
           description: Correlation Id to keep track of workflow
           required: true
@@ -437,10 +449,9 @@ paths:
           in: header
           schema:
             type: string
-        - name: account_id
-          in: path
+        - name: x-account-id
+          in: header
           description: Id da conta
-          required: true
           schema:
             type: number
             format: int64
@@ -526,10 +537,10 @@ paths:
           in: header
           schema:
             type: string
-        - name: account_id
-          in: path
+        - name: x-account-id
+          in: header
           description: Id da conta
-          required: true
+          required: false
           schema:
             type: number
             format: int64
@@ -613,9 +624,9 @@ paths:
           in: header
           schema:
             type: string
-        - name: account_id
+        - name: operador_id
           in: path
-          description: Id da conta
+          description: Id do operador
           required: true
           schema:
             type: number
@@ -691,13 +702,6 @@ paths:
           required: true
           schema:
             type: number
-        - name: account_id
-          in: path
-          description: Id da conta
-          required: true
-          schema:
-            type: number
-            format: int64
         - name: x-correlation-id
           description: Correlation Id to keep track of workflow
           required: true
@@ -858,7 +862,7 @@ paths:
                   message: 
                     type: string
   
-  /operators/{operator_id}/addresses/{address_id}:
+  /addresses/{address_id}:
     get:
       summary: Obter endereço
       description: >
@@ -1191,11 +1195,11 @@ paths:
             type: boolean
             default: null
         - name: product_id
-          in: query
+          in: path
           description: Id do produto
+          required: true
           schema:
             type: string
-            default: null
       responses:
         '200':
           description: OK
@@ -1268,8 +1272,9 @@ paths:
           schema:
             type: string
         - name: product_id
-          in: query
+          in: path
           description: Id do produto
+          required: true
           schema:
             type: string
             default: null
