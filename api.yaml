@@ -11,6 +11,46 @@ security:
   - ApiKeyAuth: []
   - AppId: []
 paths:
+  /oauth/token:
+    post:
+      summary: Token de Acesso
+      description: Retorna um token de acesso usando OAuth 2.0
+      tags:
+        - Autenticação
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                grant_type:
+                  type: string
+                  enum: [client_credentials, password]
+                client_id:
+                  type: string
+                client_secret:
+                  type: string
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  token_type:
+                    type: string
+                  expires_in:
+                    type: integer
+                  refresh_token:
+                    type: string
   /accounts:
     post:
       summary: Criar conta
